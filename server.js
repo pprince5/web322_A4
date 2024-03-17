@@ -6,9 +6,9 @@
 *
 * https://www.senecacollege.ca/about/policies/academic-integrity-policy.html
 *
-* Name: Prince Student ID: 145685228 Date: 19/02/2024
+* Name: Prince Student ID: 145685228 Date: 17/03/2024
 *
-* Published URL:
+* Published URL: https://github.com/pprince5/Web322
 *
 ********************************************************************************/
 const express = require("express");
@@ -16,6 +16,7 @@ const legoData = require("./modules/legoSets");
 const path = require("path");
 
 const app = express();
+app.set('view engine', 'ejs');
 const port = 3000;
 
 // Serve static files from the public directory
@@ -23,22 +24,24 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Set up routes
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "home.html"));
+  res.render('home');
+ // res.sendFile(path.join(__dirname, "views", "home.html"));
 });
 
 app.get("/about", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "about.html"));
+  res.render('about');
+ // res.sendFile(path.join(__dirname, "views", "about.html"));
 });
 
 app.get("/lego/sets", (req, res) => {
   const theme = req.query.theme;
   if (theme) {
     legoData.getSetsByTheme(theme)
-      .then((sets) => res.json(sets))
+    .then(sets => res.render("sets", { sets }))
       .catch((error) => res.status(404).send(error));
   } else {
     legoData.getAllSets()
-      .then((sets) => res.json(sets))
+    .then(sets => res.render("sets", { sets }))
       .catch((error) => res.status(404).send(error));
   }
 });
@@ -46,13 +49,13 @@ app.get("/lego/sets", (req, res) => {
 app.get("/lego/sets/:set_num", (req, res) => {
   const set_num = req.params.set_num;
   legoData.getSetByNum(set_num)
-    .then((set) => res.json(set))
+  .then(set => res.render("set", { set }))
     .catch((error) => res.status(404).send(error));
 });
 
 //
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+  res.status(404).render('404', { message: "I'm sorry, we're unable to find what you're looking for" });
 });
 
 //
